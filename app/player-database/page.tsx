@@ -124,7 +124,7 @@ export default function PlayerDatabasePage() {
           </div>
         </div>
         <div className="space-y-4">
-          {filteredPlayers.map((player, index) => (
+          {filteredPlayers.map((player) => (
             <PlayerCard key={player.id} player={player} />
           ))}
         </div>
