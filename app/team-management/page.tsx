@@ -57,7 +57,7 @@ export default function DashboardPage() {
   return (
     <div className="flex select-none">
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="flex-grow ">
+        <div className="flex-grow">
           <RoasterCard roster={roster} budget={budget} totalSalary={totalSalary} remainingBudget={remainingBudget}/>
         </div>
         <div className="w-64 ml-4">
