@@ -97,7 +97,7 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
               className="space-y-2 overflow-hidden"
             >
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-orange-100">
                   <TableHead
                     className="cursor-pointer w-1/3"
                     onClick={() => handleSort("name")}
@@ -123,7 +123,7 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
                   >
                     Contract Years {sortField === "contractYears" && SortIcon}
                   </TableHead>
-                  <TableHead className="w-0"></TableHead>
+                  <TableHead className="w-0 "></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
