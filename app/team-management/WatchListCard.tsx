@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../Card/Card";
-import { Draggable, Droppable } from "../DragAndDrop";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/Card/Card";
+import { Draggable, Droppable } from "../../components/DragAndDrop";
 import { Player } from "@/types/Player";
-import Button from "../Button/Button";
+import Button from "../../components/Button/Button";
 import { Minus } from "lucide-react";
 
 interface WatchlistCardProps {

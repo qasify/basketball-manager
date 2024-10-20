@@ -8,7 +8,7 @@ interface CardProps {
 
 export function Card({ children, className = '' }: CardProps) {
   return (
-    <div className={cn('bg-white shadow-md rounded-lg p-6', className)}>
+    <div className={cn('bg-white shadow-md rounded-lg p-6 flex flex-col flex-grow', className)}>
       {children}
     </div>
   )
@@ -32,7 +32,7 @@ export function CardTitle({ children, className = '' }: CardProps) {
 
 export function CardContent({ children, className = '' }: CardProps) {
   return (
-    <div className={className}>
+    <div className={`flex flex-col h-full ${className}`}>
       {children}
     </div>
   )

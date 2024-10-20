@@ -22,7 +22,7 @@ export default function PlayerProfilePage() {
     // For this example, we'll use the mock data
     const foundPlayer = mockPlayers.find((p) => p.id.toString() === id);
     setPlayer(foundPlayer || null);
-  }, [id]);
+  }, []);
 
   if (!player) {
     return <div>Loading...</div>;

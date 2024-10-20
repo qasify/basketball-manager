@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../Card/Card";
-import { Draggable, Droppable } from "../DragAndDrop";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/Card/Card";
+import { Draggable, Droppable } from "../../components/DragAndDrop";
 import { Player } from "@/types/Player";
 import {
   Table,
@@ -9,9 +14,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../Table";
+} from "../../components/Table";
 import { ChevronDown, ChevronUp, Plus } from "lucide-react";
-import Button from "../Button/Button";
+import Button from "../../components/Button/Button";
+import { POSITIONS } from "../entities/constants";
+import { SortFunction } from "@/lib/utils";
 
 interface RoasterCardProps {
   roster: Player[];
@@ -20,7 +27,13 @@ interface RoasterCardProps {
   remainingBudget: number;
 }
 
-type SortField = "name" | "age" | "salary" | "contractYears" | undefined;
+type SortField =
+  | "name"
+  | "age"
+  | "salary"
+  | "contractYears"
+  | "position"
+  | undefined;
 
 const RoasterCard: React.FC<RoasterCardProps> = ({
   roster: roasterPlayers,
@@ -40,22 +53,21 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
     }
   };
 
-  const sortedPlayers = sortField  ? [...roasterPlayers].sort((a, b) => {
-    if (a[sortField] < b[sortField]) return sortDirection === "asc" ? -1 : 1;
-    if (a[sortField] > b[sortField]) return sortDirection === "asc" ? 1 : -1;
-    return 0;
-  }) : roasterPlayers;
-
+  const sortedPlayers = sortField
+    ? [...roasterPlayers].sort((a, b) =>
+        SortFunction(a[sortField], b[sortField], sortDirection, POSITIONS)
+      )
+    : roasterPlayers;
 
   useEffect(() => {
-    setSortField(undefined)
+    setSortField(undefined);
   }, [roasterPlayers]);
 
   const SortIcon =
     sortDirection === "asc" ? (
-      <ChevronUp className="inline" />
+      <ChevronUp className="inline text-gray-500" size={15} />
     ) : (
-      <ChevronDown className="inline" />
+      <ChevronDown className="inline text-gray-500" size={15} />
     );
 
   return (
@@ -97,28 +109,33 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
               className="space-y-2 overflow-hidden"
             >
               <TableHeader>
-                <TableRow className="bg-orange-100">
+                <TableRow>
                   <TableHead
-                    className="cursor-pointer w-1/3"
+                    className=" w-1/3"
                     onClick={() => handleSort("name")}
                   >
                     Name {sortField === "name" && SortIcon}
                   </TableHead>
-                  <TableHead className="w-1/6">Position</TableHead>
                   <TableHead
-                    className="cursor-pointer w-1/6"
+                    className="w-1/6"
+                    onClick={() => handleSort("position")}
+                  >
+                    Position {sortField === "position" && SortIcon}
+                  </TableHead>
+                  <TableHead
+                    className=" w-1/6"
                     onClick={() => handleSort("age")}
                   >
                     Age {sortField === "age" && SortIcon}
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer w-1/6"
+                    className=" w-1/6"
                     onClick={() => handleSort("salary")}
                   >
                     Salary {sortField === "salary" && SortIcon}
                   </TableHead>
                   <TableHead
-                    className="cursor-pointer w-1/6"
+                    className=" w-1/6"
                     onClick={() => handleSort("contractYears")}
                   >
                     Contract Years {sortField === "contractYears" && SortIcon}
@@ -148,6 +165,7 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
                         <TableCell>
                           <Button
                             variant="icon"
+                            className="h-8 w-8"
                             // onClick={() => onAddDocument(player.id)}
                           >
                             <Plus className="h-4 w-4" />

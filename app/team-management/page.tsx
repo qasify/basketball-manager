@@ -5,8 +5,8 @@ import React, { useState } from "react";
 import { Player } from "@/types/Player";
 
 import { PLAYERS } from "@/mockData";
-import WatchlistCard from "@/components/TeamManagementCards/WatchListCard";
-import RoasterCard from "@/components/TeamManagementCards/RoastercCard";
+import WatchlistCard from "@/app/team-management/WatchListCard";
+import RoasterCard from "@/app/team-management/RoastercCard";
 import { DragDropContext } from "@/components/DragAndDrop";
 
 export default function DashboardPage() {
@@ -55,7 +55,7 @@ export default function DashboardPage() {
   const remainingBudget = budget - totalSalary;
 
   return (
-    <div className="flex select-none">
+    <div className="flex select-none flex-grow">
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex-grow">
           <RoasterCard roster={roster} budget={budget} totalSalary={totalSalary} remainingBudget={remainingBudget}/>

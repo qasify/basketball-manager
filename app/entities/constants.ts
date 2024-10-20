@@ -1,0 +1,1 @@
+export const POSITIONS = ["PG", "SG", "SF", "PF", "C"]
