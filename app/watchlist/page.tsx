@@ -18,7 +18,7 @@ export default function WatchlistPage() {
   const [watchlist, setWatchlist] = useState<Player[]>(PLAYERS.slice(2, 5));
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredWatchlist = watchlist.filter(
+  const filteredWatchlist = watchlist.filter(  
     (player) =>
       player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       player.team.toLowerCase().includes(searchTerm.toLowerCase())

@@ -14,6 +14,5 @@ export interface Player {
   assists: number;
   steals: number;
   blocks: number;
-  tag?: "high" | "medium" | 'low'
+  tag?: "high" | "medium" | "low";
 }
-  
