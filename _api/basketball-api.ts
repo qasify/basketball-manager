@@ -3,10 +3,12 @@
 import { api } from "./api";
 
 const LEAGUES_IDS = [
-  120, 194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 330, 342, 349,
-  351, 358, 367, 368, 369, 371, 381, 387, 419,
+  1, 59, 217, 275, 388, 374, 30, 32, 36, 2, 8, 40, 42, 45, 46, 51, 52, 146, 60,
+  61, 248, 65, 72, 82, 81, 86, 87, 117, 95, 102, 104, 108, 12, 17, 20, 116, 197,
+  120, 194, 202, 201, 198, 368, 369, 204, 281, 192, 123, 113, 115, 34, 37, 48,
+  56, 249, 63, 68, 74, 78, 89, 93, 100,
 ];
-const CURRENT_SEASON = "2024";
+const CURRENT_SEASON = new Date(Date.now()).getFullYear().toString();
 
 export interface League {
   id: number;
@@ -19,6 +21,11 @@ export interface League {
     code: string;
     flag: string;
   };
+  seasons: {
+    season: number;
+    start: string;
+    end: string;
+  }[];
 }
 
 export interface Team {

@@ -57,15 +57,15 @@ import { Player } from "@/_api/basketball-api";
       );
   
     return (
-      <Table className="space-y-2 bg-green-600">
+      <Table className="space-y-2 overflow-visible">
         <TableHeader className="min-w-full">
           <TableRow>
             <TableHead onClick={() => handleSort("name")}>
               Name {sortField === "name" && SortIcon}
             </TableHead>
-            <TableHead onClick={() => handleSort("number")}>
+            {/* <TableHead onClick={() => handleSort("number")}>
               Number {sortField === "number" && SortIcon}
-            </TableHead>
+            </TableHead> */}
             <TableHead onClick={() => handleSort("position")}>
               Position {sortField === "position" && SortIcon}
             </TableHead>
@@ -80,7 +80,7 @@ import { Player } from "@/_api/basketball-api";
             )}
           </TableRow>
         </TableHeader>
-        <TableBody className="bg-gray-500 overflow-auto">
+        <TableBody className="bg-gray-500">
           {sortedPlayers.map((player) => (
             <TableRow
               className="bg-white p-4 rounded shadow w-full select-none cursor-pointer hover:bg-gray-50"
@@ -88,7 +88,7 @@ import { Player } from "@/_api/basketball-api";
               key={player.id}
             >
               <TableCell>{player.name}</TableCell>
-              <TableCell>{player.number || "N/A"}</TableCell>
+              {/* <TableCell>{player.number || "N/A"}</TableCell> */}
               <TableCell>{player.position || "N/A"}</TableCell>
               <TableCell>{player.age || "N/A"}</TableCell>
               <TableCell>{player.country || "N/A"}</TableCell>

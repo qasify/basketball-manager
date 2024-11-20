@@ -12,7 +12,14 @@ import { Slider } from "@/components/Slider";
 import Button from "@/components/Button/Button";
 // import PlayersTable from "../../components/PlayersTable";
 import { POSITIONS } from "../entities/constants";
-import { getLeagues, getPlayers, getTeams, League, Player, Team } from "@/_api/basketball-api";
+import {
+  getLeagues,
+  getPlayers,
+  getTeams,
+  League,
+  Player,
+  Team,
+} from "@/_api/basketball-api";
 import { BasketBallApiTable } from "@/components/PlayersTable";
 
 const positions = POSITIONS;
@@ -63,14 +70,14 @@ export default function PlayerDatabasePage() {
   }, []);
 
   useEffect(() => {
-    if (selectedLeagues.length > 0) {
+    if (selectedLeagues.length > 0 && leagues.length > 0) {
       fetchTeamsForSelectedLeagues();
     } else {
       setTeams([]);
       setPlayers([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLeagues]);
+  }, [leagues, selectedLeagues]);
 
   useEffect(() => {
     if (selectedTeams.length > 0) {
@@ -86,7 +93,13 @@ export default function PlayerDatabasePage() {
     setError(null);
     try {
       const teamsPromises = selectedLeagues.map((leagueId) =>
-        getTeams(leagueId)
+        getTeams(
+          leagueId,
+          leagues
+            .find((league) => league.id === leagueId)
+            ?.seasons.sort((a, b) => b.season - a.season)[0]
+            .season.toString()
+        )
       );
       const teamsResults = await Promise.all(teamsPromises);
       const allTeams = teamsResults.flat();
@@ -106,9 +119,7 @@ export default function PlayerDatabasePage() {
     setIsLoading(true);
     setError(null);
     try {
-      const playersPromises = selectedTeams.map((team) =>
-        getPlayers(team)
-      );
+      const playersPromises = selectedTeams.map((team) => getPlayers(team));
       const playersResults = await Promise.all(playersPromises);
       const allPlayers = playersResults.flat();
       setPlayers(allPlayers);
@@ -139,7 +150,7 @@ export default function PlayerDatabasePage() {
       <CardHeader>
         <CardTitle>Player Database</CardTitle>
       </CardHeader>
-      <CardContent className="overflow-hidden">
+      <CardContent className="overflow-auto">
         <div className="mb-4 space-y-4">
           <div className="flex space-x-2">
             <Input
