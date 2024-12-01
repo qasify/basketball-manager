@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function SortFunction(a:string|number|string[], b:string|number|string[], sortDirection:'asc'|'desc'|undefined='asc', arrayOrder?:string[]){
+export function SortFunction(a:string|number|string[]|undefined, b:string|number|string[]|undefined, sortDirection:'asc'|'desc'|undefined='asc', arrayOrder?:string[]){
   if (
     typeof a === "number" &&
     typeof b === "number"
@@ -34,6 +34,10 @@ export function SortFunction(a:string|number|string[], b:string|number|string[],
 
     return sortDirection === "asc" ? aIndex - bIndex : bIndex - aIndex;
   }
-  return 0;
+  if(a === undefined && b !== undefined)
+    return 1
+  if(a !== undefined && b === undefined)
+    return -1
 
+  return 0;
 }

@@ -18,7 +18,7 @@ export const PLAYERS: Player[] = [
     assists: 7,
     steals: 1.2,
     blocks: 0.8,
-    tag: 'high',
+    priority: 'High',
   },
   {
     id: 2,
@@ -36,7 +36,7 @@ export const PLAYERS: Player[] = [
     assists: 6,
     steals: 1.7,
     blocks: 0.4,
-    tag: 'medium'
+    priority: 'Medium'
   },
   {
     id: 3,
@@ -54,7 +54,7 @@ export const PLAYERS: Player[] = [
     assists: 5,
     steals: 1.1,
     blocks: 1.2,
-    tag: 'high',
+    priority: 'High',
   },
   {
     id: 4,
@@ -72,7 +72,7 @@ export const PLAYERS: Player[] = [
     assists: 6,
     steals: 1.2,
     blocks: 1.4,
-    tag: 'low',
+    priority: 'Low',
   },
   {
     id: 5,
@@ -90,7 +90,7 @@ export const PLAYERS: Player[] = [
     assists: 9,
     steals: 1.0,
     blocks: 0.6,
-    tag: 'medium'
+    priority: 'Medium'
   },
 ];
 

@@ -48,12 +48,16 @@ export interface Player {
   position?: string;
   age?: number;
   country?: string;
+  team?: string;
+  photo?: string;
 }
 
 export const getLeagues = async (): Promise<League[]> => {
   try {
     const leagues = await api.get<League[]>("/leagues");
-    return leagues.filter((league) => LEAGUES_IDS.includes(league.id));
+    return leagues
+      .filter((league) => LEAGUES_IDS.includes(league.id))
+      .sort((league1, league2) => league1.name.localeCompare(league2.name));
   } catch (error) {
     console.error("Error fetching leagues:", error);
     throw error;
@@ -79,15 +83,36 @@ export const getTeams = async (
 
 export const getPlayers = async (
   teamId: number,
-  season: string = CURRENT_SEASON
+  season: string = CURRENT_SEASON,
+  teamName?: string
 ): Promise<Player[]> => {
   try {
-    return await api.get<Player[]>("/players", {
+    const players = await api.get<Player[]>("/players", {
       params: {
         team: teamId.toString(),
         season,
       },
     });
+    players.forEach((player) => {
+      player.team = teamName;
+    });
+    return players;
+  } catch (error) {
+    console.error("Error fetching players:", error);
+    throw error;
+  }
+};
+
+export const getPlayer = async (
+  playerId: number,
+): Promise<Player> => {
+  try {
+    const player = await api.get<Player[]>("/players", {
+      params: {
+        id: playerId.toString(),
+      },
+    });
+    return player[0];
   } catch (error) {
     console.error("Error fetching players:", error);
     throw error;

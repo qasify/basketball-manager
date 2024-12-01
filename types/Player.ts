@@ -1,18 +1,20 @@
+export type Priority = 'High' | 'Medium' | 'Low';
+
 export interface Player {
   id: number;
   name: string;
   position: string[];
-  team: string;
-  league: string;
   age: number;
   height: string;
   weight: string;
+  league: string;
   salary: number;
   contractYears: number;
-  ppg: number;
   rebounds: number;
+  ppg: number;
   assists: number;
   steals: number;
   blocks: number;
-  tag?: "high" | "medium" | "low";
+  team: string;
+  priority?: Priority;
 }

@@ -9,20 +9,22 @@ import {
   CardContent,
 } from "@/components/Card/Card";
 import Button from "@/components/Button/Button";
-import { Player } from "@/types/Player";
-import { PLAYERS } from "@/mockData";
+import Image from "next/image";
+import { getPlayer, Player } from "@/_api/basketball-api";
 
-const mockPlayers = PLAYERS
 export default function PlayerProfilePage() {
   const { id } = useParams();
   const [player, setPlayer] = useState<Player | null>(null);
 
   useEffect(() => {
-    // In a real application, you would fetch the player data from an API
-    // For this example, we'll use the mock data
-    const foundPlayer = mockPlayers.find((p) => p.id.toString() === id);
-    setPlayer(foundPlayer || null);
+    fetchPlayer();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const fetchPlayer = async () => {
+    const foundPlayer = await getPlayer(parseInt(id as string));
+    setPlayer(foundPlayer);
+  };
 
   if (!player) {
     return <div>Loading...</div>;
@@ -32,18 +34,59 @@ export default function PlayerProfilePage() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>{player.name}</CardTitle>
+          <CardTitle>Player Profile</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col md:flex-row">
-            <div className="md:w-1/3">
-              <img
+            <div className="md:w-1/2">
+              <Image
                 src="https://img.freepik.com/premium-photo/basketball-player-logo-single-color-vector_1177187-50594.jpg"
                 alt={player.name}
                 className="w-full rounded-lg"
+                height={1000}
+                width={1000}
               />
             </div>
             <div className="md:w-2/3 md:pl-6 mt-4 md:mt-0">
+              <h2 className="text-2xl font-bold mb-2">{player.name}</h2>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="font-semibold">Position</p>
+                  <p>{player.position}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Country</p>
+                  <p>{player.country}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Age</p>
+                  <p>{player.age}</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Number</p>
+                  <p>{player.number}</p>
+                </div>
+                <div/>
+                <div/>
+                <div>
+                  <p className="font-semibold">Height</p>
+                  <p>6 ft</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Weight</p>
+                  <p>200 lbs</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Salary</p>
+                  <p>$200000/year</p>
+                </div>
+                <div>
+                  <p className="font-semibold">Contract</p>
+                  <p>4 years</p>
+                </div>
+              </div>
+            </div>
+            {/* <div className="md:w-2/3 md:pl-6 mt-4 md:mt-0">
               <h2 className="text-2xl font-bold mb-2">{player.name}</h2>
               <p className="text-lg mb-4">
                 {player.position.join("/")} | {player.team} ({player.league})
@@ -80,7 +123,7 @@ export default function PlayerProfilePage() {
                   <p>{player.assists}</p>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
         </CardContent>
       </Card>

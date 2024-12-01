@@ -6,17 +6,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/Table";
-import { Player } from "@/types/Player";
+import { Player, Priority } from "@/types/Player";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { FC, MouseEvent, ReactNode, useState } from "react";
 import { POSITIONS } from "../../app/entities/constants";
 import { SortFunction } from "@/lib/utils";
 import Button from "../Button/Button";
+import { PriorityBadge } from "../PriorityBadge";
 
 interface Props {
   players: Player[];
-  actions?: { icon: ReactNode; handleClick: (event:MouseEvent<HTMLButtonElement>,  id: number) => void }[];
+  actions?: {
+    icon: ReactNode;
+    handleClick: (event: MouseEvent<HTMLButtonElement>, id: number) => void;
+  }[];
+  onPriorityChange?: (id: number, priority: Priority) => void;
 }
 
 type SortField =
@@ -34,9 +39,16 @@ type SortField =
   | "steals"
   | "blocks"
   | "position"
+  | "priority"
   | undefined;
 
-const PlayersTable: FC<Props> = ({ players, actions }) => {
+const PriorityMap = {
+  High: 3,
+  Medium: 2,
+  Low: 1,
+};
+
+const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
   const [sortField, setSortField] = useState<SortField>();
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">();
   const router = useRouter();
@@ -46,9 +58,23 @@ const PlayersTable: FC<Props> = ({ players, actions }) => {
   };
 
   const sortedPlayers = sortField
-    ? [...players].sort((a, b) =>
-        SortFunction(a[sortField], b[sortField], sortDirection, POSITIONS)
-      )
+    ? [...players].sort((a, b) => {
+        if (sortField === "priority") {
+          return SortFunction(
+            PriorityMap[a[sortField] as Priority],
+            PriorityMap[b[sortField] as Priority],
+            sortDirection,
+            POSITIONS
+          );
+        }
+        
+        return SortFunction(
+          a[sortField],
+          b[sortField],
+          sortDirection,
+          POSITIONS
+        );
+      })
     : players;
 
   const handleSort = (field: SortField) => {
@@ -66,6 +92,15 @@ const PlayersTable: FC<Props> = ({ players, actions }) => {
     ) : (
       <ChevronDown className="inline text-gray-500" size={15} />
     );
+
+  const handlePriorityClick = (playerId: number, currentPriority: Priority) => {
+    if (onPriorityChange) {
+      const priorities: Priority[] = ["High", "Medium", "Low"];
+      const currentIndex = priorities.indexOf(currentPriority);
+      const nextPriority = priorities[(currentIndex + 1) % priorities.length];
+      onPriorityChange(playerId, nextPriority);
+    }
+  };
 
   return (
     <Table className="space-y-2">
@@ -110,8 +145,11 @@ const PlayersTable: FC<Props> = ({ players, actions }) => {
           <TableHead onClick={() => handleSort("blocks")}>
             Blocks {sortField === "blocks" && SortIcon}
           </TableHead>
-          {actions && actions.length && (
-            <TableHead className="w-0"></TableHead>
+          <TableHead onClick={() => handleSort("priority")}>
+            Priority {sortField === "priority" && SortIcon}
+          </TableHead>
+          {actions && actions.length > 0 && (
+            <TableHead className="w-0">Actions</TableHead>
           )}
         </TableRow>
       </TableHeader>
@@ -135,14 +173,28 @@ const PlayersTable: FC<Props> = ({ players, actions }) => {
             <TableCell>{player.assists}</TableCell>
             <TableCell>{player.steals}</TableCell>
             <TableCell>{player.blocks}</TableCell>
-            {actions && actions.length && (
-              <TableCell className="space-y-2">
-                {actions.map((action) => (
+            <TableCell>
+              {player.priority && (
+                <PriorityBadge
+                  priority={player.priority}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePriorityClick(player.id, player.priority!);
+                  }}
+                />
+              )}
+            </TableCell>
+            {actions && actions.length > 0 && (
+              <TableCell className="space-x-2">
+                {actions.map((action, index) => (
                   <Button
-                    key={player.id}
+                    key={`${player.id}-${index}`}
                     variant="icon"
-                    onClick={(e:MouseEvent<HTMLButtonElement>) => action.handleClick(e, player.id)}
-                    className="-mt-2 -mr-2 h-8 w-8"
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation();
+                      action.handleClick(e, player.id);
+                    }}
+                    className="h-8 w-8"
                   >
                     {action.icon}
                   </Button>
