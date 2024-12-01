@@ -55,6 +55,7 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
     return country ? country.alpha2: '';
   };
 
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   const onAddToWatchlist = (playerId: number) => {};
   const onAddToTeam = (playerId: number) => {};
   const onAddNote = (playerId: number) => {};
