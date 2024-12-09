@@ -14,12 +14,19 @@ import { POSITIONS } from "../../app/entities/constants";
 import { SortFunction } from "@/lib/utils";
 import Button from "../Button/Button";
 import { PriorityBadge } from "../PriorityBadge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../Tooltip";
 
 interface Props {
   players: Player[];
   actions?: {
     icon: ReactNode;
     handleClick: (event: MouseEvent<HTMLButtonElement>, id: number) => void;
+    tooltip: string;
   }[];
   onPriorityChange?: (id: number, priority: Priority) => void;
 }
@@ -67,7 +74,7 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
             POSITIONS
           );
         }
-        
+
         return SortFunction(
           a[sortField],
           b[sortField],
@@ -103,108 +110,118 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
   };
 
   return (
-    <Table className="space-y-2">
-      <TableHeader>
-        <TableRow>
-          <TableHead onClick={() => handleSort("name")}>
-            Name {sortField === "name" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("position")}>
-            Position {sortField === "position" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("age")}>
-            Age {sortField === "age" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("height")}>
-            Height {sortField === "height" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("weight")}>
-            Weight {sortField === "weight" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("league")}>
-            League {sortField === "league" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("salary")}>
+    <TooltipProvider>
+      <Table className="space-y-2">
+        <TableHeader>
+          <TableRow>
+            <TableHead onClick={() => handleSort("name")}>
+              Name {sortField === "name" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("position")}>
+              Position {sortField === "position" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("age")}>
+              Age {sortField === "age" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("height")}>
+              Height {sortField === "height" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("weight")}>
+              Weight {sortField === "weight" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("league")}>
+              League {sortField === "league" && SortIcon}
+            </TableHead>
+            {/* <TableHead onClick={() => handleSort("salary")}>
             Salary {sortField === "salary" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("contractYears")}>
-            Contract Years {sortField === "contractYears" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("rebounds")}>
-            Rebounds {sortField === "rebounds" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("ppg")}>
-            PPG {sortField === "ppg" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("assists")}>
-            Assists {sortField === "assists" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("steals")}>
-            Steals {sortField === "steals" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("blocks")}>
-            Blocks {sortField === "blocks" && SortIcon}
-          </TableHead>
-          <TableHead onClick={() => handleSort("priority")}>
-            Priority {sortField === "priority" && SortIcon}
-          </TableHead>
-          {actions && actions.length > 0 && (
-            <TableHead className="w-0">Actions</TableHead>
-          )}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {sortedPlayers.map((player) => (
-          <TableRow
-            className="bg-white p-4 rounded shadow w-full select-none cursor-pointer hover:bg-gray-50"
-            onClick={() => handleViewPlayer(player.id)}
-            key={player.id}
-          >
-            <TableCell>{player.name}</TableCell>
-            <TableCell>{player.position.join(", ")}</TableCell>
-            <TableCell>{player.age}</TableCell>
-            <TableCell>{player.height}</TableCell>
-            <TableCell>{player.weight}</TableCell>
-            <TableCell>{player.league}</TableCell>
-            <TableCell>${player.salary.toLocaleString()}</TableCell>
-            <TableCell>{player.contractYears}</TableCell>
-            <TableCell>{player.rebounds}</TableCell>
-            <TableCell>{player.ppg}</TableCell>
-            <TableCell>{player.assists}</TableCell>
-            <TableCell>{player.steals}</TableCell>
-            <TableCell>{player.blocks}</TableCell>
-            <TableCell>
-              {player.priority && (
-                <PriorityBadge
-                  priority={player.priority}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handlePriorityClick(player.id, player.priority!);
-                  }}
-                />
-              )}
-            </TableCell>
+          </TableHead> */}
+            <TableHead onClick={() => handleSort("contractYears")}>
+              Contract Years {sortField === "contractYears" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("rebounds")}>
+              Rebounds {sortField === "rebounds" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("ppg")}>
+              PPG {sortField === "ppg" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("assists")}>
+              Assists {sortField === "assists" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("steals")}>
+              Steals {sortField === "steals" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("blocks")}>
+              Blocks {sortField === "blocks" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("priority")}>
+              Priority {sortField === "priority" && SortIcon}
+            </TableHead>
             {actions && actions.length > 0 && (
-              <TableCell className="space-x-2">
-                {actions.map((action, index) => (
-                  <Button
-                    key={`${player.id}-${index}`}
-                    variant="icon"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation();
-                      action.handleClick(e, player.id);
-                    }}
-                    className="h-8 w-8"
-                  >
-                    {action.icon}
-                  </Button>
-                ))}
-              </TableCell>
+              <TableHead className="w-0">Actions</TableHead>
             )}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {sortedPlayers.map((player, index) => (
+            <TableRow
+              className={`p-4 rounded shadow w-full select-none cursor-pointer hover:bg-gray-100 ${
+                index % 2 === 1 ? "bg-orange-50" : "bg-white"
+              }`}
+              onClick={() => handleViewPlayer(player.id)}
+              key={player.id}
+            >
+              <TableCell>{player.name}</TableCell>
+              <TableCell>{player.position.join(", ")}</TableCell>
+              <TableCell>{player.age}</TableCell>
+              <TableCell>{player.height}</TableCell>
+              <TableCell>{player.weight}</TableCell>
+              <TableCell>{player.league}</TableCell>
+              {/* <TableCell>${player.salary.toLocaleString()}</TableCell> */}
+              <TableCell>{player.contractYears}</TableCell>
+              <TableCell>{player.rebounds}</TableCell>
+              <TableCell>{player.ppg}</TableCell>
+              <TableCell>{player.assists}</TableCell>
+              <TableCell>{player.steals}</TableCell>
+              <TableCell>{player.blocks}</TableCell>
+              <TableCell>
+                {player.priority && (
+                  <PriorityBadge
+                    priority={player.priority}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePriorityClick(player.id, player.priority!);
+                    }}
+                  />
+                )}
+              </TableCell>
+              {actions && actions.length > 0 && (
+                <TableCell className="flex space-x-2">
+                  {actions.map((action, index) => (
+                    <Tooltip key={`${player.id}-${index}`}>
+                      <TooltipTrigger>
+                        <Button
+                          variant="icon"
+                          onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                            e.stopPropagation();
+                            action.handleClick(e, player.id);
+                          }}
+                          className="h-8 w-8"
+                        >
+                          {action.icon}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{action.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </TableCell>
+              )}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TooltipProvider>
   );
 };
 

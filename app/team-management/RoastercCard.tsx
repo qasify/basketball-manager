@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/Table";
-import { ChevronDown, ChevronUp, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, FileText } from "lucide-react";
 import Button from "../../components/Button/Button";
 import { POSITIONS } from "../entities/constants";
 import { SortFunction } from "@/lib/utils";
@@ -168,7 +168,7 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
                             className="h-8 w-8"
                             // onClick={() => onAddDocument(player.id)}
                           >
-                            <Plus className="h-4 w-4" />
+                            <FileText className="h-4 w-4" />
                           </Button>
                         </TableCell>
                       </TableRow>
