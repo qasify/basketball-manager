@@ -21,28 +21,25 @@ import {
   Team,
 } from "@/_api/basketball-api";
 import { BasketBallApiTable } from "@/components/PlayersTable";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/Select";
+import Select, { Option } from "@/components/Select";
 
 const positions = POSITIONS;
 export default function PlayerDatabasePage() {
+  const DEFAULT_LEAGUE = { label: "EuroLeague", value: "120" };
+
   const [leagues, setLeagues] = useState<League[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [players, setPlayers] = useState<Player[]>();
   const [countries, setCountries] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [ageRange, setAgeRange] = useState([18, 40]);
+  const [ageRange, setAgeRange] = useState([14, 40]);
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
   // const [selectedLeagues, setSelectedLeagues] = useState<number[]>([120]);
-  const [selectedLeague, setSelectedLeague] = useState<number | undefined>(120);
+  const [selectedLeagues, setSelectedLeagues] = useState<number[]>([
+    parseInt(DEFAULT_LEAGUE.value),
+  ]);
   const [selectedTeams, setSelectedTeams] = useState<number[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>('');
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,16 +50,11 @@ export default function PlayerDatabasePage() {
     );
   };
 
-  const handleLeagueChange = (league: number) => {
-    // setSelectedLeagues((prev) =>
-    //   prev.includes(league)
-    //     ? prev.filter((l) => l !== league)
-    //     : [...prev, league]
-    // );
+  const handleLeagueChange = (newValues: Option[]) => {
+    setSelectedLeagues(newValues.map((item) => parseInt(item.value)));
     setPlayers([]);
     setTeams([]);
-    setSelectedCountry('')
-    setSelectedLeague(league);
+    setSelectedCountries([]);
   };
 
   const handleTeamChange = (team: number) => {
@@ -71,18 +63,17 @@ export default function PlayerDatabasePage() {
     );
   };
 
-  const handleCountryChange = (country: string) => {
-    setSelectedCountry(country);
+  const handleCountriesChange = (newValues: Option[]) => {
+    setSelectedCountries(newValues.map((item) => item.value));
   };
-
 
   const handleClearFilters = () => {
     setSearchTerm("");
-    setAgeRange([18, 40]);
+    setAgeRange([14, 40]);
     setSelectedPositions([]);
     // setSelectedLeague(undefined);
     // setSelectedLeague()
-    setSelectedCountry('')
+    setSelectedCountries([]);
   };
 
   useEffect(() => {
@@ -90,14 +81,14 @@ export default function PlayerDatabasePage() {
   }, []);
 
   useEffect(() => {
-    if (selectedLeague && leagues.length > 0) {
+    if (selectedLeagues.length > 0 && leagues.length > 0) {
       fetchTeamsForSelectedLeagues();
     } else {
       setTeams([]);
       setPlayers([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [leagues, selectedLeague]);
+  }, [leagues, selectedLeagues]);
 
   useEffect(() => {
     if (selectedTeams.length > 0) {
@@ -118,29 +109,20 @@ export default function PlayerDatabasePage() {
     setIsLoading(true);
     setError(null);
     try {
-      // const teamsPromises = selectedLeague.map((leagueId) =>
-      //   getTeams(
-      //     leagueId,
-      //     leagues
-      //       .find((league) => league.id === leagueId)
-      //       ?.seasons.sort((a, b) => b.season - a.season)[0]
-      //       .season.toString()
-      //   )
-      // );
-      // const teamsResults = await Promise.all(teamsPromises);
-      // const allTeams = teamsResults.flat();
-      if (selectedLeague) {
-        const allTeams = await getTeams(
-          selectedLeague,
+      const teamsPromises = selectedLeagues.map((leagueId) =>
+        getTeams(
+          leagueId,
           leagues
-            .find((league) => league.id === selectedLeague)
+            .find((league) => league.id === leagueId)
             ?.seasons.sort((a, b) => b.season - a.season)[0]
             .season.toString()
-        );
-        if (allTeams.length > 0) {
-          setTeams(allTeams);
-          setSelectedTeams([allTeams[0].id]);
-        }
+        )
+      );
+      const teamsResults = await Promise.all(teamsPromises);
+      const allTeams = teamsResults.flat();
+      if (allTeams.length > 0) {
+        setTeams(allTeams);
+        setSelectedTeams([allTeams[0].id]);
       }
     } catch (err) {
       setError("Failed to fetch teams");
@@ -157,10 +139,7 @@ export default function PlayerDatabasePage() {
       const playersPromises = selectedTeams.map((team) =>
         getPlayers(
           team,
-          leagues
-            .find((league) => league.id === selectedLeague)
-            ?.seasons.sort((a, b) => b.season - a.season)[0]
-            .season.toString(),
+          teams.find((t) => t.id === team)?.season,
           teams.find((t) => t.id === team)?.name
         )
       );
@@ -202,7 +181,7 @@ export default function PlayerDatabasePage() {
   };
 
   return (
-    <Card className="overflow-auto relative pb-14">
+    <Card className="overflow-auto relative pb-14 min-h-[50vh]">
       <CardHeader>
         <CardTitle>Player Database</CardTitle>
       </CardHeader>
@@ -224,7 +203,40 @@ export default function PlayerDatabasePage() {
               Clear all Filters
             </Button>
           </div>
-          <div>
+          <div className="flex items-center space-x-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Age Range: {ageRange[0]} - {ageRange[1]}
+              </label>
+              <Slider
+                min={14}
+                max={40}
+                step={1}
+                value={ageRange}
+                onValueChange={setAgeRange}
+                className="w-full"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <Input
+                type="number"
+                min={14}
+                max={ageRange[1]}
+                value={ageRange[0]}
+                onChange={(e) => setAgeRange([parseInt(e.target.value), ageRange[1]])}
+                className="w-12 px-1"
+              />
+              <Input
+                type="number"
+                min={ageRange[0]}
+                max={40}
+                value={ageRange[1]}
+                onChange={(e) => setAgeRange([ageRange[0], parseInt(e.target.value)])}
+                className="w-12 px-1"
+              />
+            </div>
+          </div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Age Range: {ageRange[0]} - {ageRange[1]}
             </label>
@@ -236,7 +248,7 @@ export default function PlayerDatabasePage() {
               onValueChange={setAgeRange}
               className="w-full"
             />
-          </div>
+          </div> */}
           <div className="flex justify-between">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -263,30 +275,13 @@ export default function PlayerDatabasePage() {
                   Country
                 </label>
                 <Select
-                  onValueChange={handleCountryChange}
-                  value={selectedCountry}
-                >
-                  <SelectTrigger className="w-[280px]">
-                    <SelectValue placeholder="Select a country" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-96">
-                    <SelectGroup>
-                      {countries.map((country) => (
-                        <SelectItem
-                          key={country}
-                          value={country}
-                          className={
-                            selectedCountry === country
-                              ? "bg-orange-600 focus:bg-orange-600 text-white"
-                              : undefined
-                          }
-                        >
-                          {country}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+                  options={countries.map((country) => ({
+                    label: country,
+                    value: country,
+                  }))}
+                  onValueChange={handleCountriesChange}
+                  isMulti
+                />
               </div>
             )}
             <div>
@@ -294,32 +289,14 @@ export default function PlayerDatabasePage() {
                 Leagues
               </label>
               <Select
-                onValueChange={(value: string) =>
-                  handleLeagueChange(parseInt(value))
-                }
-                value={selectedLeague?.toString()}
-              >
-                <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="Select a league" />
-                </SelectTrigger>
-                <SelectContent className="max-h-96">
-                  <SelectGroup>
-                    {leagues.map((league) => (
-                      <SelectItem
-                        key={league.id}
-                        value={league.id.toString()}
-                        className={
-                          selectedLeague === league.id
-                            ? "bg-orange-600 focus:bg-orange-600 text-white"
-                            : undefined
-                        }
-                      >
-                        {league.name}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+                options={leagues.map((league) => ({
+                  label: league.name,
+                  value: league.id.toString(),
+                }))}
+                defaultValue={DEFAULT_LEAGUE}
+                onValueChange={handleLeagueChange}
+                isMulti
+              />
             </div>
           </div>
           {teams && teams.length > 0 && (
@@ -364,8 +341,8 @@ export default function PlayerDatabasePage() {
                     ?.toLowerCase()
                     .includes(searchTerm.toLowerCase())) &&
                 (!player.age ||
-                  (player.age >= ageRange[0] && player.age <= ageRange[1]))
-                  && (!selectedCountry || player.country===selectedCountry)
+                  (player.age >= ageRange[0] && player.age <= ageRange[1])) &&
+                (selectedCountries.length===0 || selectedCountries.includes(player.country??''))
               // &&
               // (selectedPositions.length === 0 ||
               //   player.position.some((pos) =>

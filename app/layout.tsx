@@ -21,7 +21,7 @@ export default function DashboardLayout({
       <body className={`${inter.className} overflow-clip`}>
         <div className="min-h-screen bg-orange-50 flex flex-col h-full">
           <NavigationBar/>
-          <main className="container mx-auto px-4 py-8 flex overflow-hidden justify-center ">{children}</main>
+          <main className="container w-screen mx-auto px-4 py-8 flex overflow-hidden justify-center">{children}</main>
         </div>
       </body>
     </html>
