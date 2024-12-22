@@ -53,7 +53,8 @@ export default function DashboardPage() {
     }
   };
 
-  const totalSalary = roster.reduce((sum, player) => sum + player.salary, 0);
+  const totalSalary = 0
+  //  roster.reduce((sum, player) => sum + player.salary, 0);
   const budget = 200000000; // Example budget
   const remainingBudget = budget - totalSalary;
 
