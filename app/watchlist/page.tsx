@@ -1,6 +1,6 @@
 "use client";
 
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import { Input } from "@/components/Input/Input";
 import {
   Card,
@@ -9,49 +9,82 @@ import {
   CardContent,
 } from "@/components/Card/Card";
 import PlayersTable from "@/components/PlayersTable";
-import { Player, Priority } from "@/types/Player";
-import { PLAYERS } from "@/mockData";
+import { Priority } from "@/types/Player";
 import { Minus, Plus } from "lucide-react";
 import Button from "@/components/Button/Button";
 import { Slider } from "@/components/Slider";
 import Select, { Option } from "@/components/Select";
+import { FBPlayer, teamRosterDB, watchListDB } from "@/_api/firebase-api";
 
-const PRIORITIES:Priority[] = ['High', 'Medium', 'Low']
+const PRIORITIES: Priority[] = ["High", "Medium", "Low"];
 
 export default function WatchlistPage() {
-  const [watchlist, setWatchlist] = useState<Player[]>(PLAYERS);
+  const [watchlist, setWatchlist] = useState<FBPlayer[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [ageRange, setAgeRange] = useState([14, 40]);
   const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
 
+  useEffect(() => {
+    getWatchlistPlayers();
+  }, []);
+
+  const getWatchlistPlayers = async () => {
+    const players = await watchListDB.getAll();
+    setWatchlist(players);
+  };
+
   const filteredWatchlist = watchlist.filter(
     (player) =>
       (player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      player.team.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        player.team?.toLowerCase().includes(searchTerm.toLowerCase())) &&
       (!player.age ||
         (player.age >= ageRange[0] && player.age <= ageRange[1])) &&
-      (selectedPriorities.length===0 || selectedPriorities.includes(player.priority??''))
+      (selectedPriorities.length === 0 ||
+        selectedPriorities.includes(player.priority ?? ""))
   );
 
-  const handleRemove = (event: MouseEvent<HTMLButtonElement>, id: number) => {
+  const handleRemove = async (event: MouseEvent<HTMLButtonElement>, player: FBPlayer) => {
     event.stopPropagation();
-    setWatchlist(watchlist.filter((item) => item.id !== id));
+    try {
+      await watchListDB.remove(player.documentId);
+      setWatchlist(
+        watchlist.filter((p) => p.documentId !== player.documentId)
+      );
+    } catch {
+      console.error("Error updating Priority");
+    }
   };
 
-  const handleAddToTeam = (
+  const handleAddToTeam = async (
     event: MouseEvent<HTMLButtonElement>,
-    id: number
+    player: FBPlayer
   ) => {
     event.stopPropagation();
-    handleRemove(event, id);
+    try {
+      await teamRosterDB.add(player);
+      // handleRemove(event, player);
+    } catch {
+      console.error("Error updating Priority");
+    }
   };
 
-  const handlePriorityChange = (id: number, priority: Priority) => {
-    setWatchlist(
-      watchlist.map((player) =>
-        player.id === id ? { ...player, priority } : player
-      )
-    );
+  const handlePriorityChange = async (playerId: number, priority: Priority) => {
+    try {
+      const player = watchlist.find((p) => p.id === playerId);
+      if (player) {
+        await watchListDB.update({
+          ...player,
+          priority: priority,
+        });
+        setWatchlist(
+          watchlist.map((player) =>
+            player.id === playerId ? { ...player, priority } : player
+          )
+        );
+      }
+    } catch {
+      console.error("Error updating Priority");
+    }
   };
 
   const handlePrioritiesChange = (newValues: Option[]) => {
@@ -123,15 +156,15 @@ export default function WatchlistPage() {
             />
           </div>
           <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Priorities
-              </label>
-              <Select
-                options={PRIORITIES.map(p=>({label:p, value:p}))}
-                onValueChange={handlePrioritiesChange}
-                isMulti
-              />
-            </div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Priorities
+            </label>
+            <Select
+              options={PRIORITIES.map((p) => ({ label: p, value: p }))}
+              onValueChange={handlePrioritiesChange}
+              isMulti
+            />
+          </div>
         </div>
         <PlayersTable
           players={filteredWatchlist}

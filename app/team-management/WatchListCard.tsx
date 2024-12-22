@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/Card/Card";
 import { Draggable, Droppable } from "../../components/DragAndDrop";
-import { Player } from "@/types/Player";
 import Button from "../../components/Button/Button";
 import { Minus } from "lucide-react";
+import { FBPlayer } from "@/_api/firebase-api";
 
 interface WatchlistCardProps {
-  watchlist: Player[];
+  watchlist: FBPlayer[];
 }
 
 const positions = ["PG", "SG", "SF", "PF", "C"];
@@ -14,7 +14,7 @@ const positions = ["PG", "SG", "SF", "PF", "C"];
 const WatchlistCard: React.FC<WatchlistCardProps> = ({
   watchlist: initialWatchlist,
 }) => {
-  const [watchlist, setWatchlist] = useState<Player[]>(initialWatchlist);
+  const [watchlist, setWatchlist] = useState<FBPlayer[]>(initialWatchlist);
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
 
   const togglePosition = (position: string) => {
@@ -28,11 +28,12 @@ const WatchlistCard: React.FC<WatchlistCardProps> = ({
     setWatchlist(initialWatchlist)
   }, [initialWatchlist]);
 
-  const filteredWatchlist = watchlist.filter(
-    (player) =>
-      selectedPositions.length === 0 ||
-      player.position.some((pos) => selectedPositions.includes(pos))
-  );
+  const filteredWatchlist = watchlist
+  // .filter(
+  //   (player) =>
+  //     selectedPositions.length === 0 ||
+  //     player.position.some((pos) => selectedPositions.includes(pos))
+  // );
 
   const removeFromWatchlist = (playerId: number) => {
     setWatchlist((prev) => prev.filter((player) => player.id !== playerId));
@@ -89,7 +90,7 @@ const WatchlistCard: React.FC<WatchlistCardProps> = ({
                         </Button>
                       </div>
                       <p className="text-gray-600">
-                        {player.position.join(", ")} | Age: {player.age}
+                        {player.position} | Age: {player.age}
                       </p>
                     </li>
                   )}

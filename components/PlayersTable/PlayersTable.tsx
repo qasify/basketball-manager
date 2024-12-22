@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/Table";
-import { Player, Priority } from "@/types/Player";
+import { Priority } from "@/types/Player";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { FC, MouseEvent, ReactNode, useState } from "react";
@@ -20,12 +20,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../Tooltip";
+import { FBPlayer } from "@/_api/firebase-api";
 
 interface Props {
-  players: Player[];
+  players: FBPlayer[];
   actions?: {
     icon: ReactNode;
-    handleClick: (event: MouseEvent<HTMLButtonElement>, id: number) => void;
+    handleClick: (event: MouseEvent<HTMLButtonElement>, player: FBPlayer) => void;
     tooltip: string;
   }[];
   onPriorityChange?: (id: number, priority: Priority) => void;
@@ -33,19 +34,20 @@ interface Props {
 
 type SortField =
   | "name"
-  | "age"
-  | "salary"
-  | "height"
-  | "league"
-  | "weight"
-  | "contractYears"
-  | "rebounds"
-  | "team"
-  | "ppg"
-  | "assists"
-  | "steals"
-  | "blocks"
   | "position"
+  | "age"
+  | "country"
+  // | "salary"
+  // | "height"
+  // | "league"
+  // | "weight"
+  // | "contractYears"
+  // | "rebounds"
+  | "team"
+  // | "ppg"
+  // | "assists"
+  // | "steals"
+  // | "blocks"
   | "priority"
   | undefined;
 
@@ -100,12 +102,12 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
       <ChevronDown className="inline text-gray-500" size={15} />
     );
 
-  const handlePriorityClick = (playerId: number, currentPriority: Priority) => {
+  const handlePriorityClick = (id: number, currentPriority: Priority) => {
     if (onPriorityChange) {
       const priorities: Priority[] = ["High", "Medium", "Low"];
       const currentIndex = priorities.indexOf(currentPriority);
       const nextPriority = priorities[(currentIndex + 1) % priorities.length];
-      onPriorityChange(playerId, nextPriority);
+      onPriorityChange(id, nextPriority);
     }
   };
 
@@ -123,7 +125,13 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
             <TableHead onClick={() => handleSort("age")}>
               Age {sortField === "age" && SortIcon}
             </TableHead>
-            <TableHead onClick={() => handleSort("height")}>
+            <TableHead onClick={() => handleSort("country")}>
+              Country {sortField === "country" && SortIcon}
+            </TableHead>
+            <TableHead onClick={() => handleSort("team")}>
+              Team {sortField === "team" && SortIcon}
+            </TableHead>
+            {/* <TableHead onClick={() => handleSort("height")}>
               Height {sortField === "height" && SortIcon}
             </TableHead>
             <TableHead onClick={() => handleSort("weight")}>
@@ -131,11 +139,11 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
             </TableHead>
             <TableHead onClick={() => handleSort("league")}>
               League {sortField === "league" && SortIcon}
-            </TableHead>
+            </TableHead> */}
             {/* <TableHead onClick={() => handleSort("salary")}>
             Salary {sortField === "salary" && SortIcon}
           </TableHead> */}
-            <TableHead onClick={() => handleSort("contractYears")}>
+            {/* <TableHead onClick={() => handleSort("contractYears")}>
               Contract Years {sortField === "contractYears" && SortIcon}
             </TableHead>
             <TableHead onClick={() => handleSort("rebounds")}>
@@ -152,7 +160,7 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
             </TableHead>
             <TableHead onClick={() => handleSort("blocks")}>
               Blocks {sortField === "blocks" && SortIcon}
-            </TableHead>
+            </TableHead> */}
             <TableHead onClick={() => handleSort("priority")}>
               Priority {sortField === "priority" && SortIcon}
             </TableHead>
@@ -171,18 +179,20 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
               key={player.id}
             >
               <TableCell>{player.name}</TableCell>
-              <TableCell>{player.position.join(", ")}</TableCell>
+              <TableCell>{player.position}</TableCell>
               <TableCell>{player.age}</TableCell>
-              <TableCell>{player.height}</TableCell>
+              <TableCell>{player.country}</TableCell>
+              <TableCell>{player.team}</TableCell>
+              {/* <TableCell>{player.height}</TableCell>
               <TableCell>{player.weight}</TableCell>
-              <TableCell>{player.league}</TableCell>
+              <TableCell>{player.league}</TableCell> */}
               {/* <TableCell>${player.salary.toLocaleString()}</TableCell> */}
-              <TableCell>{player.contractYears}</TableCell>
+              {/* <TableCell>{player.contractYears}</TableCell>
               <TableCell>{player.rebounds}</TableCell>
               <TableCell>{player.ppg}</TableCell>
               <TableCell>{player.assists}</TableCell>
               <TableCell>{player.steals}</TableCell>
-              <TableCell>{player.blocks}</TableCell>
+              <TableCell>{player.blocks}</TableCell> */}
               <TableCell>
                 {player.priority && (
                   <PriorityBadge
@@ -203,7 +213,7 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
                           variant="icon"
                           onClick={(e: MouseEvent<HTMLButtonElement>) => {
                             e.stopPropagation();
-                            action.handleClick(e, player.id);
+                            action.handleClick(e, player);
                           }}
                           className="h-8 w-8"
                         >

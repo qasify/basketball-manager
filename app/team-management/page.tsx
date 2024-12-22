@@ -1,20 +1,23 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Player } from "@/types/Player";
-
-import { PLAYERS } from "@/mockData";
 import WatchlistCard from "@/app/team-management/WatchListCard";
 import RoasterCard from "@/app/team-management/RoastercCard";
 import { DragDropContext } from "@/components/DragAndDrop";
+import { FBPlayer, teamRosterDB, watchListDB } from "@/_api/firebase-api";
 
 export default function DashboardPage() {
-  const initialPlayers = PLAYERS.slice(0, 3);
-  const initialWatchlist = PLAYERS.slice(3, 5);
+  const [roster, setRoster] = useState<FBPlayer[]>([]);
+  const [watchlist, setWatchlist] = useState<FBPlayer[]>([]);
 
-  const [roster, setRoster] = useState<Player[]>(initialPlayers);
-  const [watchlist, setWatchlist] = useState<Player[]>(initialWatchlist);
+  const fetchPlayers = async() => {
+    const watchPlayers = await watchListDB.getAll();
+    const rosterPlayers = await teamRosterDB.getAll();
+
+    setWatchlist(watchPlayers)
+    setRoster(rosterPlayers)
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDragEnd = (result: any) => {
@@ -53,6 +56,10 @@ export default function DashboardPage() {
   const totalSalary = roster.reduce((sum, player) => sum + player.salary, 0);
   const budget = 200000000; // Example budget
   const remainingBudget = budget - totalSalary;
+
+  useEffect(() => {
+    fetchPlayers()
+  }, []);
 
   return (
     <div className="flex select-none flex-grow">

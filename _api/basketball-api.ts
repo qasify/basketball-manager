@@ -1,8 +1,10 @@
 "use server";
 
+import { Priority } from "@/types/Player";
 import { api } from "./api";
+import { teamRosterDB, watchListDB } from "./firebase-api";
 
-const LEAGUES_NAMES : Record<number, string> = {
+const LEAGUES_NAMES: Record<number, string> = {
   1: "Australia: NBL",
   59: "Kosovo: Superliga",
   217: "Austria: Superliga",
@@ -100,6 +102,9 @@ export interface Player {
   country?: string;
   team?: string;
   photo?: string;
+  isInWatchlist?: boolean;
+  isInTeam?: boolean;
+  priority?: Priority;
 }
 
 export const getLeagues = async (): Promise<League[]> => {
@@ -145,6 +150,9 @@ export const getPlayers = async (
   teamName?: string
 ): Promise<Player[]> => {
   try {
+    const watchlist = await watchListDB.getAll();
+    const teamRoster = await teamRosterDB.getAll();
+
     const players = await api.get<Player[]>("/players", {
       params: {
         team: teamId.toString(),
@@ -153,6 +161,12 @@ export const getPlayers = async (
     });
     players.forEach((player) => {
       player.team = teamName;
+      player.isInWatchlist = watchlist.find((p) => p.id === player.id)
+        ? true
+        : false;
+      player.isInTeam = teamRoster.find((p) => p.id === player.id)
+        ? true
+        : false;
     });
     return players;
   } catch (error) {

@@ -6,7 +6,6 @@ import {
   CardTitle,
 } from "../../components/Card/Card";
 import { Draggable, Droppable } from "../../components/DragAndDrop";
-import { Player } from "@/types/Player";
 import {
   Table,
   TableBody,
@@ -19,9 +18,10 @@ import { ChevronDown, ChevronUp, FileText } from "lucide-react";
 import Button from "../../components/Button/Button";
 import { POSITIONS } from "../entities/constants";
 import { SortFunction } from "@/lib/utils";
+import { FBPlayer } from "@/_api/firebase-api";
 
 interface RoasterCardProps {
-  roster: Player[];
+  roster: FBPlayer[];
   totalSalary: number;
   budget: number;
   remainingBudget: number;
@@ -30,8 +30,8 @@ interface RoasterCardProps {
 type SortField =
   | "name"
   | "age"
-  | "salary"
-  | "contractYears"
+  // | "salary"
+  // | "contractYears"
   | "position"
   | undefined;
 
@@ -130,17 +130,17 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
                   </TableHead>
                   <TableHead
                     className=" w-1/6"
-                    onClick={() => handleSort("salary")}
+                    // onClick={() => handleSort("salary")}
                   >
-                    Salary {sortField === "salary" && SortIcon}
+                     Salary {/*{sortField === "salary" && SortIcon} */}
                   </TableHead>
                   <TableHead
                     className=" w-1/6"
-                    onClick={() => handleSort("contractYears")}
+                    // onClick={() => handleSort("contractYears")}
                   >
-                    Contract Years {sortField === "contractYears" && SortIcon}
+                     Contract Years {/*{sortField === "contractYears" && SortIcon} */}
                   </TableHead>
-                  <TableHead className="w-0 "></TableHead>
+                  <TableHead className="w-0 ">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -158,10 +158,10 @@ const RoasterCard: React.FC<RoasterCardProps> = ({
                         className="bg-white p-4 rounded shadow w-full"
                       >
                         <TableCell className="">{player.name}</TableCell>
-                        <TableCell>{player.position.join(", ")}</TableCell>
+                        <TableCell>{player.position}</TableCell>
                         <TableCell>{player.age}</TableCell>
-                        <TableCell>${player.salary.toLocaleString()}</TableCell>
-                        <TableCell>{player.contractYears}</TableCell>
+                        <TableCell>N/A</TableCell>
+                        <TableCell>N/A</TableCell>
                         <TableCell>
                           <Button
                             variant="icon"

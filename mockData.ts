@@ -1,7 +1,7 @@
 import { Game } from "./types/Game";
-import { Player } from "./types/Player";
+import { PlayerOLD } from "./types/Player";
 
-export const PLAYERS: Player[] = [
+export const PLAYERS: PlayerOLD[] = [
   {
     id: 1,
     name: "LeBron James",

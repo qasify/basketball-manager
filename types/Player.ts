@@ -1,6 +1,6 @@
 export type Priority = 'High' | 'Medium' | 'Low';
 
-export interface Player {
+export interface PlayerOLD {
   id: number;
   name: string;
   position: string[];

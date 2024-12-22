@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../Tooltip";
+import { teamRosterDB, watchListDB } from "@/_api/firebase-api";
 
 interface Props {
   players: Player[];
@@ -50,8 +51,27 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
   const router = useRouter();
 
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  const onAddToWatchlist = (playerId: number) => {};
-  const onAddToTeam = (playerId: number) => {};
+  const onAddToWatchlist = async (player: Player) => {
+    try {
+      if (!player.priority) {
+        player.priority = "Medium";
+      }
+      await watchListDB.add(player);
+    } catch {
+      console.error("Error adding to watchlist");
+    }
+  };
+  const onAddToTeam = async (player: Player) => {
+    await teamRosterDB.add(player);
+    try {
+      if (!player.priority) {
+        player.priority = "Medium";
+      }
+      await teamRosterDB.add(player);
+    } catch {
+      console.error("Error adding to team");
+    }
+  };
   const onAddNote = (playerId: number) => {};
 
   const handleViewPlayer = (playerId: number) => {
@@ -150,10 +170,16 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
                           className="ml-2 p-0"
                           onClick={(e: MouseEvent<HTMLButtonElement>) => {
                             e.stopPropagation();
-                            onAddToWatchlist(player.id);
+                            onAddToWatchlist(player);
                           }}
                         >
-                          <Star className="h-4 w-4" />
+                          <Star
+                            className="h-4 w-4"
+                            // fill={
+                            //   player.isInWatchlist ? "#EA580C" : "transparent"
+                            // }
+                            color="#EA580C"
+                          />
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
@@ -189,7 +215,7 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
                         variant="icon"
                         onClick={(e: MouseEvent<HTMLButtonElement>) => {
                           e.stopPropagation();
-                          onAddToTeam(player.id);
+                          onAddToTeam(player);
                         }}
                         className="h-8 w-8"
                       >

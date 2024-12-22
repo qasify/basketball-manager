@@ -11,6 +11,7 @@ import {
 import Button from "@/components/Button/Button";
 import Image from "next/image";
 import { getPlayer, Player } from "@/_api/basketball-api";
+import { watchListDB } from "@/_api/firebase-api";
 
 export default function PlayerProfilePage() {
   const { id } = useParams();
@@ -29,6 +30,19 @@ export default function PlayerProfilePage() {
   if (!player) {
     return <div>Loading...</div>;
   }
+
+  const onAddToWatchlist = async () => {
+    if (player) {
+      try {
+        if (!player.priority) {
+          player.priority = "Medium";
+        }
+        await watchListDB.add(player);
+      } catch {
+        console.error("Error adding to watchlist");
+      }
+    }
+  };
 
   return (
     <div className="space-y-6 overflow-y-auto w-full px-8">
@@ -66,23 +80,23 @@ export default function PlayerProfilePage() {
                   <p className="font-semibold">Number</p>
                   <p>{player.number}</p>
                 </div>
-                <div/>
-                <div/>
+                <div />
+                <div />
                 <div>
                   <p className="font-semibold">Height</p>
-                  <p>6 ft</p>
+                  <p>N/A</p>
                 </div>
                 <div>
                   <p className="font-semibold">Weight</p>
-                  <p>200 lbs</p>
+                  <p>N/A</p>
                 </div>
                 <div>
                   <p className="font-semibold">Salary</p>
-                  <p>$200000/year</p>
+                  <p>N/A</p>
                 </div>
                 <div>
                   <p className="font-semibold">Contract</p>
-                  <p>4 years</p>
+                  <p>N/A</p>
                 </div>
               </div>
             </div>
@@ -128,7 +142,7 @@ export default function PlayerProfilePage() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Season Stats</CardTitle>
         </CardHeader>
@@ -168,11 +182,10 @@ export default function PlayerProfilePage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
 
       <div className="flex justify-end space-x-4">
-        <Button variant="outline">Add to Watchlist</Button>
-        <Button>Trade Player</Button>
+        <Button variant="outline" onClick={onAddToWatchlist}>Add to Watchlist</Button>
       </div>
     </div>
   );
