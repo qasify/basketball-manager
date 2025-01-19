@@ -105,6 +105,9 @@ export interface Player {
   isInWatchlist?: boolean;
   isInTeam?: boolean;
   priority?: Priority;
+  pinned?: boolean
+  salary?: string
+  contract?: string
 }
 
 export const getLeagues = async (): Promise<League[]> => {

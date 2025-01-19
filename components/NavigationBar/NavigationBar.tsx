@@ -9,6 +9,7 @@ const navItems = [
   { name: "Team Management", href: "/team-management", icon: "👥" },
   { name: "Player Database", href: "/player-database", icon: "🏀" },
   { name: "Watchlist", href: "/watchlist", icon: "👀" },
+  { name: "News", href: "/news", icon: "🗞️" },
   { name: "Notifications", href: "/notifications", icon: "🔔" },
 ];
 

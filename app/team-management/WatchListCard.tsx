@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/Card/Card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/Card/Card";
 import { Draggable, Droppable } from "../../components/DragAndDrop";
 import Button from "../../components/Button/Button";
 import { Minus } from "lucide-react";
@@ -7,12 +12,14 @@ import { FBPlayer } from "@/_api/firebase-api";
 
 interface WatchlistCardProps {
   watchlist: FBPlayer[];
+  onPlayerClick: (player: FBPlayer) => void;
 }
 
 const positions = ["PG", "SG", "SF", "PF", "C"];
 
 const WatchlistCard: React.FC<WatchlistCardProps> = ({
   watchlist: initialWatchlist,
+  onPlayerClick,
 }) => {
   const [watchlist, setWatchlist] = useState<FBPlayer[]>(initialWatchlist);
   const [selectedPositions, setSelectedPositions] = useState<string[]>([]);
@@ -25,10 +32,10 @@ const WatchlistCard: React.FC<WatchlistCardProps> = ({
     );
   };
   useEffect(() => {
-    setWatchlist(initialWatchlist)
+    setWatchlist(initialWatchlist);
   }, [initialWatchlist]);
 
-  const filteredWatchlist = watchlist
+  const filteredWatchlist = watchlist;
   // .filter(
   //   (player) =>
   //     selectedPositions.length === 0 ||
@@ -78,6 +85,7 @@ const WatchlistCard: React.FC<WatchlistCardProps> = ({
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                       className="bg-white p-2 rounded shadow text-sm"
+                      onClick={() => onPlayerClick(player)}
                     >
                       <div className="flex justify-between">
                         <h4 className="font-bold">{player.name}</h4>

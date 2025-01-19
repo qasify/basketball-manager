@@ -10,7 +10,7 @@ import {
 } from "@/components/Card/Card";
 import PlayersTable from "@/components/PlayersTable";
 import { Priority } from "@/types/Player";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Pin, PinOff } from "lucide-react";
 import Button from "@/components/Button/Button";
 import { Slider } from "@/components/Slider";
 import Select, { Option } from "@/components/Select";
@@ -43,15 +43,16 @@ export default function WatchlistPage() {
         selectedPriorities.includes(player.priority ?? ""))
   );
 
-  const handleRemove = async (event: MouseEvent<HTMLButtonElement>, player: FBPlayer) => {
+  const handleRemove = async (
+    event: MouseEvent<HTMLButtonElement>,
+    player: FBPlayer
+  ) => {
     event.stopPropagation();
     try {
       await watchListDB.remove(player.documentId);
-      setWatchlist(
-        watchlist.filter((p) => p.documentId !== player.documentId)
-      );
+      setWatchlist(watchlist.filter((p) => p.documentId !== player.documentId));
     } catch {
-      console.error("Error updating Priority");
+      console.error("Error removing from watchlist");
     }
   };
 
@@ -95,6 +96,41 @@ export default function WatchlistPage() {
     setSearchTerm("");
     setAgeRange([14, 40]);
     setSelectedPriorities([]);
+  };
+
+  const handleUpdatePin = async (player: FBPlayer, pinned:boolean)=>{
+    try {
+      const foundPlayer = watchlist.find((p) => p.id === player?.id);
+      if (foundPlayer) {
+        await watchListDB.update({
+          ...foundPlayer,
+          pinned,
+        });
+        setWatchlist(
+          watchlist.map((p) =>
+            p.id === player?.id ? { ...p, pinned } : p
+          )
+        );
+      }
+    } catch {
+      console.error("Error updating Pin");
+    }
+  }
+
+  const handleAddPin = async (
+    event: MouseEvent<HTMLButtonElement>,
+    player: FBPlayer
+  ) => {
+    event.stopPropagation();
+    handleUpdatePin(player, true)
+  };
+
+  const handleRemovePin = async (
+    event: MouseEvent<HTMLButtonElement>,
+    player: FBPlayer
+  ) => {
+    event.stopPropagation();
+    handleUpdatePin(player, false)
   };
 
   return (
@@ -180,6 +216,18 @@ export default function WatchlistPage() {
               tooltip: "Remove from watchlist",
             },
           ]}
+          pinActions={{
+            yes: {
+              icon: <Pin className="h-4 w-4" />,
+              handleClick: handleAddPin,
+              tooltip: "Pin player",
+            },
+            no: {
+              icon: <PinOff className="h-4 w-4" color="red"/>,
+              handleClick: handleRemovePin,
+              tooltip: "Unpin player",
+            },
+          }}
           onPriorityChange={handlePriorityChange}
         />
       </CardContent>

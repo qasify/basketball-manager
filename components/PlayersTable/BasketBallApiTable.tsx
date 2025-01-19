@@ -27,7 +27,15 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../Tooltip";
-import { teamRosterDB, watchListDB } from "@/_api/firebase-api";
+import { notesDB, teamRosterDB, watchListDB } from "@/_api/firebase-api";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../Dialog";
+import { Textarea } from "../TextArea";
 
 interface Props {
   players: Player[];
@@ -50,6 +58,10 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const router = useRouter();
 
+  const [notePlayer, setNotePlayer] = useState<Player>();
+  const [note, setNote] = useState("");
+  const [isNotesDialogOpen, setIsNotesDialogOpen] = useState(false);
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   const onAddToWatchlist = async (player: Player) => {
     try {
@@ -61,6 +73,7 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
       console.error("Error adding to watchlist");
     }
   };
+  
   const onAddToTeam = async (player: Player) => {
     await teamRosterDB.add(player);
     try {
@@ -72,7 +85,15 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
       console.error("Error adding to team");
     }
   };
-  const onAddNote = (playerId: number) => {};
+
+  const handleNotesSave = async (playerId: number) => {
+    try{
+      setIsNotesDialogOpen(false);
+      await notesDB.add(playerId, note)
+    } catch {
+      console.error("Error adding note");
+    }
+  };
 
   const handleViewPlayer = (playerId: number) => {
     router.push(`/player-profile/${playerId}`);
@@ -83,6 +104,15 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
 
     const country = iso3166.whereCountry(countryName);
     return country ? country.alpha2 : "";
+  };
+
+  const openNoteDialog = async (e: MouseEvent<HTMLButtonElement>, player:Player) => {
+    e.stopPropagation();
+    setNotePlayer(player); 
+    setNote('')
+    const fetchedNote = await notesDB.get(player.id)
+    setNote(fetchedNote)
+    setIsNotesDialogOpen(true);
   };
 
   const sortedPlayers = sortField
@@ -228,10 +258,7 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
                   </Tooltip>
                   <Button
                     variant="icon"
-                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                      e.stopPropagation();
-                      onAddNote(player.id);
-                    }}
+                    onClick={e => openNoteDialog(e, player)}
                     className="h-8 w-8"
                   >
                     <FileText className="h-4 w-4" />
@@ -250,6 +277,26 @@ const BasketBallApiTable: FC<Props> = ({ players }) => {
           onPageChange={setCurrentPage}
         />
       </div>
+      {notePlayer && (
+        <Dialog open={isNotesDialogOpen} onOpenChange={setIsNotesDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Notes for {notePlayer.name}</DialogTitle>
+            </DialogHeader>
+            <Textarea
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Enter notes here..."
+              className="min-h-[200px]"
+            />
+            <DialogFooter>
+              <Button onClick={() => handleNotesSave(notePlayer.id)}>
+                Save
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

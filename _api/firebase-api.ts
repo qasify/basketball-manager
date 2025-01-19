@@ -13,6 +13,7 @@ import {
 
 const WATCHLIST_COLLECTION = "watchlist";
 const TEAM_ROSTER_COLLECTION = "team";
+const NOTE_COLLECTION = "note";
 
 export interface FBPlayer extends Player {
   documentId: string;
@@ -25,10 +26,10 @@ export const watchListDB = {
       where("id", "==", player.id)
     );
     const querySnapshot = await getDocs(q);
-    if (querySnapshot.docs.length === 0){
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { isInTeam, isInWatchlist, ...otherData } = player;
-        await addDoc(collection(db, WATCHLIST_COLLECTION), otherData);
+    if (querySnapshot.docs.length === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { isInTeam, isInWatchlist, ...otherData } = player;
+      await addDoc(collection(db, WATCHLIST_COLLECTION), otherData);
     }
   },
   getAll: async () => {
@@ -46,7 +47,7 @@ export const watchListDB = {
     await deleteDoc(docRef);
   },
   update: async (player: FBPlayer) => {
-    const docRef = doc(db, WATCHLIST_COLLECTION, player.documentId); 
+    const docRef = doc(db, WATCHLIST_COLLECTION, player.documentId);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { isInTeam, isInWatchlist, documentId, ...otherData } = player;
     await updateDoc(docRef, {
@@ -89,5 +90,38 @@ export const teamRosterDB = {
     await updateDoc(docRef, {
       ...otherData,
     });
+  },
+};
+
+export const notesDB = {
+  add: async (playerId: number, note: string) => {
+    const q = query(
+      collection(db, NOTE_COLLECTION),
+      where("id", "==", playerId)
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.docs.length === 0) {
+      await addDoc(collection(db, NOTE_COLLECTION), {
+        id: playerId,
+        note,
+      });
+    } else {
+      const docRef = doc(db, NOTE_COLLECTION, querySnapshot.docs[0].id);
+      await updateDoc(docRef, {
+        note,
+      });
+    }
+  },
+  get: async (playerId: number) => {
+    const q = query(
+      collection(db, NOTE_COLLECTION),
+      where("id", "==", playerId)
+    );
+    const querySnapshot = await getDocs(q); 
+    if (querySnapshot.docs.length === 1) {
+      return querySnapshot.docs[0].data().note;
+    } else {
+      return "";
+    }
   },
 };

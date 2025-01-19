@@ -12,23 +12,39 @@ import { useRouter } from "next/navigation";
 import React, { FC, MouseEvent, ReactNode, useState } from "react";
 import { POSITIONS } from "../../app/entities/constants";
 import { SortFunction } from "@/lib/utils";
-import Button from "../Button/Button";
 import { PriorityBadge } from "../PriorityBadge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "../Tooltip";
+import { TooltipProvider } from "../Tooltip";
 import { FBPlayer } from "@/_api/firebase-api";
+import TooltipIconButton from "../TooltipIconButton";
 
 interface Props {
   players: FBPlayer[];
   actions?: {
     icon: ReactNode;
-    handleClick: (event: MouseEvent<HTMLButtonElement>, player: FBPlayer) => void;
+    handleClick: (
+      event: MouseEvent<HTMLButtonElement>,
+      player: FBPlayer
+    ) => void;
     tooltip: string;
   }[];
+  pinActions?: {
+    yes: {
+      icon: ReactNode;
+      handleClick: (
+        event: MouseEvent<HTMLButtonElement>,
+        player: FBPlayer
+      ) => void;
+      tooltip: string;
+    };
+    no: {
+      icon: ReactNode;
+      handleClick: (
+        event: MouseEvent<HTMLButtonElement>,
+        player: FBPlayer
+      ) => void;
+      tooltip: string;
+    };
+  };
   onPriorityChange?: (id: number, priority: Priority) => void;
 }
 
@@ -57,7 +73,12 @@ const PriorityMap = {
   Low: 1,
 };
 
-const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
+const PlayersTable: FC<Props> = ({
+  players,
+  actions,
+  pinActions,
+  onPriorityChange,
+}) => {
   const [sortField, setSortField] = useState<SortField>();
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">();
   const router = useRouter();
@@ -67,24 +88,26 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
   };
 
   const sortedPlayers = sortField
-    ? [...players].sort((a, b) => {
-        if (sortField === "priority") {
+    ? [...players]
+        .sort((a, b) => {
+          if (sortField === "priority") {
+            return SortFunction(
+              PriorityMap[a[sortField] as Priority],
+              PriorityMap[b[sortField] as Priority],
+              sortDirection,
+              POSITIONS
+            );
+          }
+
           return SortFunction(
-            PriorityMap[a[sortField] as Priority],
-            PriorityMap[b[sortField] as Priority],
+            a[sortField],
+            b[sortField],
             sortDirection,
             POSITIONS
           );
-        }
-
-        return SortFunction(
-          a[sortField],
-          b[sortField],
-          sortDirection,
-          POSITIONS
-        );
-      })
-    : players;
+        })
+        .sort((a, b) => (a.pinned ? -1 : b.pinned ? 1 : 0))
+    : players.sort((a, b) => (a.pinned ? -1 : b.pinned ? 1 : 0));
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -207,24 +230,31 @@ const PlayersTable: FC<Props> = ({ players, actions, onPriorityChange }) => {
               {actions && actions.length > 0 && (
                 <TableCell className="flex space-x-2">
                   {actions.map((action, index) => (
-                    <Tooltip key={`${player.id}-${index}`}>
-                      <TooltipTrigger>
-                        <Button
-                          variant="icon"
-                          onClick={(e: MouseEvent<HTMLButtonElement>) => {
-                            e.stopPropagation();
-                            action.handleClick(e, player);
-                          }}
-                          className="h-8 w-8"
-                        >
-                          {action.icon}
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{action.tooltip}</p>
-                      </TooltipContent>
-                    </Tooltip>
+                    <TooltipIconButton
+                      key={`${player.id}-${index}`}
+                      icon={action.icon}
+                      handleClick={action.handleClick}
+                      tooltip={action.tooltip}
+                      player={player}
+                    />
                   ))}
+                  {pinActions && player.pinned ? (
+                    <TooltipIconButton
+                      icon={pinActions.no.icon}
+                      handleClick={pinActions.no.handleClick}
+                      tooltip={pinActions.no.tooltip}
+                      player={player}
+                    />
+                  ) : (
+                    pinActions && (
+                      <TooltipIconButton
+                        icon={pinActions.yes.icon}
+                        handleClick={pinActions.yes.handleClick}
+                        tooltip={pinActions.yes.tooltip}
+                        player={player}
+                      />
+                    )
+                  )}
                 </TableCell>
               )}
             </TableRow>

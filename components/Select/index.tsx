@@ -54,10 +54,16 @@ export const Select: React.FC<Props> = ({
         ...theme,
         colors: {
           ...theme.colors,
-          primary25: '#ffedd5',
-          primary: '##ffedd5',
+          primary25: "#ffedd5",
+          primary: "##ffedd5",
         },
       })}
+      styles={{
+        menuList: (base) => ({
+          ...base, // Spread the base styles
+          maxHeight: "500px",
+        }),
+      }}
     />
   );
 };
