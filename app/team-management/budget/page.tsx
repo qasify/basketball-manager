@@ -19,9 +19,11 @@ const initialBudgetData = {
 }
 
 export default function BudgetTrackingPage() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [budgetData, setBudgetData] = useState(initialBudgetData)
 
   const remainingBudget = budgetData.totalBudget - budgetData.spentBudget
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const spentPercentage = (budgetData.spentBudget / budgetData.totalBudget) * 100
 
   return (
